@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="57" height="17" viewBox="0 0 57 17">
+  <g id="more_active" transform="translate(-10.5 -56.5)">
+    <g id="Ellipse_11" data-name="Ellipse 11" transform="translate(10.5 56.5)" fill="#373f51" stroke="#373f51" stroke-width="1">
+      <circle cx="8.5" cy="8.5" r="8.5" stroke="none"/>
+      <circle cx="8.5" cy="8.5" r="8" fill="none"/>
+    </g>
+    <g id="Ellipse_12" data-name="Ellipse 12" transform="translate(50.5 56.5)" fill="#373f51" stroke="#373f51" stroke-width="1">
+      <circle cx="8.5" cy="8.5" r="8.5" stroke="none"/>
+      <circle cx="8.5" cy="8.5" r="8" fill="none"/>
+    </g>
+    <g id="Ellipse_13" data-name="Ellipse 13" transform="translate(30.5 56.5)" fill="#373f51" stroke="#373f51" stroke-width="1">
+      <circle cx="8.5" cy="8.5" r="8.5" stroke="none"/>
+      <circle cx="8.5" cy="8.5" r="8" fill="none"/>
+    </g>
+  </g>
+</svg>
