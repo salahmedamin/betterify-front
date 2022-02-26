@@ -1,10 +1,8 @@
-import React, { useRef } from 'react'
+import React from 'react'
 
-export default function Overlay({ id, children, className}) {
-    const ref = useRef()
+export default function Overlay({ children, className, style}) {
     return (
         <div
-            ref={ref}
             style={{
                 position:"absolute",
                 width: "100%",
@@ -15,7 +13,8 @@ export default function Overlay({ id, children, className}) {
                 alignItems: "center",
                 justifyContent:"center",
                 zIndex: 500,
-                backdropFilter: "blur(3px)"
+                backdropFilter: "blur(3px)",
+                ...style
             }}
             className={"col-12 col-md-8 col-lg-6 "+(className||'')}
         >

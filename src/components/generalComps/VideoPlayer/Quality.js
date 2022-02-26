@@ -36,10 +36,6 @@ export default function Quality({
                     position: "absolute",
                     bottom: "100%",
                     transition: ".3s ease all",
-                    borderTop: "1px solid "+colors.gray,
-                    borderRight: "1px solid "+colors.gray,
-                    borderLeft: "1px solid "+colors.gray,
-                    background: colors.gray+"60",
                     visibility: showQualities?"visible":"hidden",
                     borderTopRightRadius: 3,
                     borderTopLeftRadius: 3,
@@ -66,7 +62,7 @@ export default function Quality({
                                 fontSize: 13,
                                 color: colors.white,
                                 margin: 3,
-                                background: list[current].quality === a.quality ? colors.gray : undefined
+                                background: list[current].quality === a.quality ? colors.blue+"80" : i % 2 === 0 ? colors.white+"30" : colors.black
                             }}
                         >
                             {a.quality}

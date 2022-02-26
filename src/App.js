@@ -5,7 +5,7 @@ import "./App.scss";
 import { Route, Switch, withRouter, Redirect } from "react-router-dom";
 
 //REACT
-import React, { useEffect }/*, { useEffect }*/ from "react";
+import React /*, { useEffect }*/ from "react";
 
 //LOADING
 import {Loading} from "./Loading"

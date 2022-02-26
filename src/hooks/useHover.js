@@ -17,6 +17,7 @@ export const useHover = ()=>{
           }
         }
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [ref.current] // Recall only if ref changes
     );
     return [ref, value]

@@ -1,6 +1,8 @@
 // import { useEffect, useState } from "react";
 
-export const File = ({ index, total, name, size }) => {
+import axios from "axios";
+
+export const File = ({ unique, name, size, isWhite=false, style, parentStyle }) => {
   const finalSize = {
     kb: size/1024,
     mb: size/1024/1024,
@@ -15,7 +17,8 @@ export const File = ({ index, total, name, size }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-around",
-        flexDirection: "column"
+        flexDirection: "column",
+        ...parentStyle
       }}
     >
 
@@ -26,12 +29,13 @@ export const File = ({ index, total, name, size }) => {
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center center",
-          backgroundImage: `url(/images/post/content/file.svg)`
+          backgroundImage: `url(/images/post/content/file${isWhite ? "_white":""}.svg)`,
+          ...style
         }}
       />
       <div style={{color: "white"}}>
         <span style={{
-          maxWidth: 0, 
+          maxWidth: 100, 
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap"
@@ -43,7 +47,7 @@ export const File = ({ index, total, name, size }) => {
           finalSize.kb > 1 ? finalSize.kb.toFixed(2)+"KB"
           :
           size
-        }
+        } - <b style={{cursor:"pointer"}} onClick={async()=>await axios.post(process.env.REACT_APP_API+"download/"+unique)}>Download</b>
       </div>
     </div>
   );

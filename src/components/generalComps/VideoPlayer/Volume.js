@@ -39,23 +39,34 @@ export default function Volume({
                     style={{
                         height: "100%",
                         width: 10,
-                        border: "1px solid "+colors.white,
-                        background: colors.gray+"60",
+                        // border: "1px solid "+colors.white,
+                        // background: colors.gray+"60",
                         borderRadius: 8,
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "flex-end",
                         justifyContent: "center",
-                        overflow: "hidden"
+                        overflow: "hidden",
+                        position:"relative"
                     }}
                     onClick={calcVol}
                 >
                     <div
                         style={{
+                            height:"100%",
+                            width: 2,
+                            position:"absolute",
+                            left: "50%",
+                            transform:"translateX(-50%)",
+                            background: colors.white
+                        }}
+                    />
+                    <div
+                        style={{
                             height: volume,
-                            width: "96%",
+                            width: "50%",
                             background: colors.white,
-                            borderRadius: 8
+                            borderRadius: 5
                         }}
                     />
                 </div>

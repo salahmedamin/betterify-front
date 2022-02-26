@@ -10,7 +10,8 @@ export const Content = ({
     activity,
     place,
     postWidth,
-    setpostWidth
+    setpostWidth,
+    urls
 })=>(
     <div
         className="d-flex flex-column mt-4"
@@ -24,10 +25,11 @@ export const Content = ({
             place={place}
             hasMedia={medias?.length > 0}
             postWidth={postWidth}
+            urls={urls}
         />
         {
             medias?.length > 0 ?
-                <Media medias={medias} postWidth={postWidth} setpostWidth={setpostWidth} />
+                <Media medias={medias} postWidth={postWidth} setpostWidth={()=>setpostWidth?setpostWidth():undefined} />
             : null
         }
     </div>

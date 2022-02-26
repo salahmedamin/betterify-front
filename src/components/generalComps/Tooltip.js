@@ -13,6 +13,7 @@ export default function Tooltip({
 }) {
     return (
         <div
+            key={1}
             style={{
               left: right ? `calc( 100% + ${right} )` : undefined,
               right: left ? `calc( 100% + ${left} )` : undefined,

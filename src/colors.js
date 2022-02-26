@@ -10,6 +10,7 @@ export const colors = {
   preWhite: "#434343",
   body: "#0D1321",
   black: "#17191b",
+  blue:"#2c76d6",
   coolors: {
     orange: "rgb(255, 95, 92)",
     peach: "rgb(237, 206, 171)",

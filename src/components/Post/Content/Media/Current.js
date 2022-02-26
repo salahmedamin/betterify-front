@@ -2,10 +2,10 @@ import { Video } from "./Current/Types/Video";
 import { Arrow } from "./Current/Arrow";
 import { Audio } from "./Current/Types/Audio";
 import { File } from "./Current/Types/File";
-import { Image } from "./Current/Types/Image";
 import { getTimeFromSeconds } from "../../../functions/getTimeFromSeconds";
 import { useEffect } from "react";
 import Divider from "../../../generalComps/Divider";
+import { Image } from "./Current/Types/Image";
 
 export const Current = ({
   current,
@@ -15,6 +15,7 @@ export const Current = ({
   next,
   postWidth,
   setpostWidth,
+  id
 }) => {
   useEffect(() => {
     if (current?.type !== "video") setpostWidth(undefined)
@@ -36,9 +37,7 @@ export const Current = ({
         width={"95%"}
         height={1}
       />
-      {current?.type === "image" ? (
-        <Image current={current?.unique} total={total} index={currentIndex} />
-      ) : current?.type === "audio" ? (
+      {current?.type === "audio" ? (
         <Audio
           duration={getTimeFromSeconds(current?.duration)}
           current={current?.unique}
@@ -59,30 +58,19 @@ export const Current = ({
           duration={current?.duration}
           list={current?.video_qualities}
           total={total}
+          id={id}
           index={currentIndex}
         />
-      ) : null}
+      )
+      : current?.type === "image" ?
+        <Image
+          {...current}
+        />
+      : null}
 
       {/* arrows */}
       {currentIndex > 0 ? <Arrow left={true} onClick={previous} /> : null}
       {currentIndex + 1 < total ? <Arrow onClick={next} /> : null}
-
-      {["image"].includes(current?.type) ? (
-        <div
-          style={{
-            position: "absolute",
-            zIndex: -3,
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center center",
-            backgroundImage: `url(http://localhost:5000/media/${current.unique})`,
-            filter: "blur(8px)",
-            width: "100%",
-            height: "100%",
-            transition: ".4s ease all",
-          }}
-        />
-      ) : null}
     </div>
   );
 };

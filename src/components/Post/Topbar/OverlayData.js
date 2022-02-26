@@ -40,9 +40,7 @@ export const OverlayData = ({
         color: {
           color_default: colors.white
         },
-        style:{
-            background: colors.red+"60"
-        }
+        onHoverBg: colors.red+"80"
       }
     ],
     other: [
@@ -74,7 +72,7 @@ export const OverlayData = ({
           img_inactive: "/images/post/topbar/following_inactive.svg",
         },
         color: {
-          color_active: colors.red,
+          color_active: colors.red+"80",
           color_inactive: colors.white
         },
       },
@@ -89,9 +87,7 @@ export const OverlayData = ({
         color: {
           color_default: colors.white,
         },
-        style:{
-            background: colors.red+"60"
-        }
+        onHoverBg: colors.red+"80"
       }
       //similar
     ],

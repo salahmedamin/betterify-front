@@ -14,18 +14,18 @@ import { colors } from "../../colors"
 export const VideoPlayer = ({
     _duration,
     list,
+    id,
     maxWidth,
     maxHeight,
     minWidth,
     minHeight,
     setpostWidth,
-    postWidth
 })=>{
     const [loading, setloading] = useState(true)
     const [playing, setplaying] = useState(false)
     const [timing, settiming] = useState(getTimeFromSeconds(0))
     const [duration, setduration] = useState(getTimeFromSeconds(_duration))
-    const [currentTime, setcurrentTime] = useState(0)
+    const [currentTime, setcurrentTime] = useState(window[`video_${id}`]||0)
     const [current, setcurrent] = useState(0)
     const [volume, setvolume] = useState(0)
     const [showplayrange, setshowplayrange] = useState(false)
@@ -33,25 +33,49 @@ export const VideoPlayer = ({
     const fullScreenRef = useRef()
     const ref = useRef()
 
+    useEffect(() => {
+      if(setpostWidth) setpostWidth(ref?.current?.getBoundingClientRect()?.width)
+    }, [setpostWidth]);
 
     useEffect(() => {
+        const onLoadedData = () => {
+          setloading(ref?.current?.readyState < 3)
+          if(window[`video_${id}`]) ref.current.currentTime = window[`video_${id}`]
+        }
         //first load
         setduration(getTimeFromSeconds(_duration))
-        ref?.current?.addEventListener("loadeddata", () => {
-          setloading(ref?.current?.readyState < 3)
-          if(setpostWidth) setpostWidth(ref?.current?.getBoundingClientRect()?.width)
-        })
+        ref?.current?.addEventListener("loadeddata", onLoadedData)
     
         //playing / pausing
-        ref?.current?.addEventListener("play", () => setplaying(true))
-        ref?.current?.addEventListener("pause", () => setplaying(false))
+        const play = ()=>setplaying(true)
+        const pause = ()=>setplaying(false)
+        const updateTime = () => settiming(getTimeFromSeconds(ref?.current?.currentTime))
+        const refCopy = ref?.current
+        ref?.current?.addEventListener("play", play)
+        ref?.current?.addEventListener("pause", pause)
     
         //time update
-        ref?.current?.addEventListener("timeupdate", () => settiming(getTimeFromSeconds(ref?.current?.currentTime)))
-        } ,[ref, loading, _duration, setpostWidth])
+        ref?.current?.addEventListener("timeupdate", updateTime)
+
+        return()=>{
+          refCopy?.removeEventListener("timeupdate",updateTime)
+          refCopy?.removeEventListener("play",play)
+          refCopy?.removeEventListener("pause",pause)
+          refCopy?.removeEventListener("loadeddata", onLoadedData)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        } ,[ref, loading, _duration])
     
-      useEffect(() => ref.current.currentTime = currentTime, [currentTime])
+      useEffect(() => {
+        ref.current.currentTime = currentTime
+        return ()=>{
+          window[`video_${id}`] = currentTime||0
+        }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [currentTime])
+
       useEffect(() => ref.current.volume = volume/100, [volume])
+
       useEffect(() =>{
           setloading(true)
           ref.current.load()
@@ -62,10 +86,12 @@ export const VideoPlayer = ({
         <div
       style={{
         height: "100%",
+        maxWidth: "100%",
         position: "relative",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        overflow: "hidden"
       }}
       onMouseOver={()=>setshowplayrange(true)}
       onMouseOut={()=>setshowplayrange(false)}
@@ -98,7 +124,7 @@ export const VideoPlayer = ({
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
-          minWidth: minWidth||450,
+          minWidth: minWidth||300,
           minHeight: minHeight||240,
           maxWidth,
           maxHeight,
@@ -123,11 +149,12 @@ export const VideoPlayer = ({
         <video
             ref={ref}
             style={{
-              maxWidth: window.innerWidth < 690 ? "100%" : undefined
+              width: window.innerWidth < 690 ? "100%" : undefined,
+              height: "100%"
             }}
         >
             <source
-              src={`http://localhost:5000/media/${list[current]?.videoHash}?type=video`}
+              src={`http://localhost:5000/api/media/${list[current]?.videoHash}?type=video`}
             />
         </video>
 
@@ -148,7 +175,7 @@ export const VideoPlayer = ({
           }}
         >
             <SwitchPlay pause={()=>ref?.current?.pause()} play={()=>ref?.current?.play()} playing={playing} loading={loading} />
-            <PlayRange duration={duration} onClick={(e)=>setcurrentTime(e)} timing={timing} />
+            <PlayRange duration={duration} onClick={(e)=>setcurrentTime(e)} timing={timing} ref={ref}/>
             <Volume volume={volume} setvolume={setvolume}/>
             <Quality showQualities={showQualities} setshowQualities={setshowQualities} current={current} setcurrent={setcurrent} list={list} />
             <FullScreen ref={fullScreenRef.current} />

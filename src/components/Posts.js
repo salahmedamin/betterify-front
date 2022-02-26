@@ -1,21 +1,30 @@
+import { useEffect } from "react"
 import { useSelector } from "react-redux"
+import { getFeedPosts } from "../async/posts/getFeedPosts"
 import LargeContainer from "./generalComps/LargeContainer"
 import { Post } from "./Post"
+
 export const Posts = ()=>{
+    const userID = useSelector(state=>state.auth.id)
+    useEffect(()=>{
+        (async()=>await getFeedPosts({userID}))()
+    },[userID])
     const posts = useSelector(state=>state.posts.list)
-    
     return (
+        Array.isArray(posts) ?
         <LargeContainer
             type="v"
             className="align-items-center w-100"
         >
             {
             posts.map((a,i)=><Post
-                key={i}
+                key={a.id}
                 {...a}
             />)
             }
         </LargeContainer>
+        :
+        null
         )
 }
     // return(

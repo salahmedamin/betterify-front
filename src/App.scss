@@ -5,7 +5,6 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
 }
 .hidescrollbar{
     &::-webkit-scrollbar {
@@ -16,4 +15,30 @@ body{
     &::-webkit-scrollbar-thumb {
         background: #373f51;
     }
+}
+.hidescrollbar__thin{
+    &::-webkit-scrollbar {
+        height: 5px;  /* Remove scrollbar space */
+        background: transparent;  /* Optional: just make scrollbar invisible */
+        width: 6px;
+    }
+    /* Optional: show position indicator in red */
+    &::-webkit-scrollbar-thumb {
+        background: #373f51;
+    }
+}
+video::-webkit-media-controls {
+    display: none;
+  }
+wave::-webkit-scrollbar {
+    height: 7px;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+/* Optional: show position indicator in red */
+wave::-webkit-scrollbar-thumb {
+    background: #373f51;
+}
+
+div.DraftEditor-root{
+    width: inherit;
 }

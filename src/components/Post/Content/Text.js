@@ -2,22 +2,24 @@ import React, { useEffect, useRef, useState } from "react";
 import { colors } from "../../../colors";
 import {HorizontalScroll} from "../../generalComps/HorizontalScroll";
 import Snippet from "../../generalComps/Snippet";
-import { convertTextWithTags } from "./Text/convert";
+import { TextWithTags } from "../../generalComps/Text";
 
 export const Text = ({
   text,
   tagged,
-  isOwner,
   hasEdits,
   activity,
   place,
   hasMedia,
   postWidth,
+  urls,
+  isPost=true,
+  textStyle={}
 }) => {
   const textHolder = useRef()
   const [tagDone, settagDone] = useState(false);
-
-  const [conv, setconv] = useState(convertTextWithTags(text, tagged));
+  const [conv, setconv] = useState(TextWithTags(text));
+  TextWithTags(text)
   const [useReadMore, setuseReadMore] = useState(false);
   const [textHeight, settextHeight] = useState(
     textHolder?.current?.getBoundingClientRect().height
@@ -26,14 +28,15 @@ export const Text = ({
 
   useEffect(() => {
     if(!tagDone){
-      setconv(convertTextWithTags(text, tagged));
+      setconv(TextWithTags(text, tagged, undefined, urls));
       settagDone(true)
     }
     const { height } = textHolder?.current?.getBoundingClientRect();
-    if (height > 38) {
+    if (height > 343) {
       setuseReadMore(true);
       settextHeight(postWidth < 650 ? height + 100 : height);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postWidth, tagDone, text, tagged]);
 
   return (
@@ -41,9 +44,9 @@ export const Text = ({
       style={{
         color: colors.white,
       }}
-      className="px-3"
+      className={`${isPost ? "px-3" : ""}`}
     >
-      {activity || place ? (
+      {(typeof activity === "object" && Object.keys(activity).length > 0) || place ? (
         <HorizontalScroll
           maxWidth={"100%"}
           overflowXScroll={true}
@@ -87,7 +90,7 @@ export const Text = ({
               }}
             />
           ) : null}
-          {activity ? (
+          {(typeof activity === "object" && Object.keys(activity).length > 0) ? (
             <Snippet
             key={2}
               style={{
@@ -99,7 +102,7 @@ export const Text = ({
               cb={() => undefined}
               color={colors.white}
               text={`${activity.name}${
-                activity.complimentary ? " " + activity.complimentary : ""
+                activity.complimentary ? " " + activity.complimentary.text : ""
               }`}
               image={{
                 path: `/images/post/content/activites/${activity.thumbnail}.svg`,
@@ -144,15 +147,24 @@ export const Text = ({
       <div
         ref={textHolder}
         style={{
-          marginTop: !hasMedia ? 30 : 0,
-          marginBottom: !hasMedia ? 10 : 0,
+          marginTop: !hasMedia && isPost ? 30 : 0,
+          marginBottom: !hasMedia && isPost ? 10 : 0,
           maxHeight: showmore || !useReadMore ? textHeight : 38,
           overflow: "hidden",
           transition: ".4s ease all",
           fontSize: 14,
+          ...textStyle
         }}
       >
-        {conv}
+        {
+          conv.map((e,x)=>
+          <div key={x}>
+            {e.map((a,i)=>
+              a
+            )}
+            </div>
+          )
+        }
       </div>
       {(hasEdits) || useReadMore ? (
         <div
@@ -160,6 +172,7 @@ export const Text = ({
             display: "flex",
             // borderTop: "1px solid "+colors.gray,
             paddingTop: 4,
+            paddingBottom: 10
           }}
         >
           {hasEdits ? (

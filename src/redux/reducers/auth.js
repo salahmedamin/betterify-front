@@ -2,7 +2,8 @@ export const auth =
 (
     state={
         isLogged: true,
-        username: "monstronix"
+        username: "monstronix",
+        id: 1
     },
     action
 )=>{

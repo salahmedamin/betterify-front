@@ -1,133 +1,205 @@
-import { useSelector } from "react-redux"
-import { colors } from "../../colors"
-import LargeContainer from "../generalComps/LargeContainer"
-import { Round } from "./Topbar/Round"
-import { User } from "./Topbar/User"
+import { useEffect, useState } from "react";
+import { colors } from "../../colors";
+import LargeContainer from "../generalComps/LargeContainer";
+import Snippet from "../generalComps/Snippet";
+import { User } from "./Topbar/User";
+import { getTimeFromSeconds } from "../functions/getTimeFromSeconds";
+import { getMonth } from "../functions/getMonth";
+import { setShowReactions } from "../../dispatches/posts/setShowReactions";
+import { reactionsBg } from "./Reactions/reactions_list";
+import { react } from "../../async/posts/react";
 
 export const Topbar = ({
   id,
   owner,
   currentUsername,
-  reactsTotal,
-  ownReaction,
-  hasCommented,
-  hasShared,
-  commentsTotal,
-  isEditable,
-  isCommentable,
-  isReactable,
-  isShareable,
-  hasEdits,
-  followedByViewer
+  created_at,
+  comments: { isCommentable, showComments, hideComments, commentsVisible } = {},
+  reactions: { own, _total, isReactable, reacting } = {},
+  sharing: { hasShared, isShareable } = {},
+  showTime = true,
+  showRightSide = true,
 }) => {
-  const loadings = useSelector((state) =>
-    state.posts.list.find((a) => a.id === id)
-  )?.loading;
+  const [actives, setactives] = useState([]);
+  const [time, settime] = useState();
+  useEffect(() => {
+    const date = new Date(created_at);
+    const timed = getTimeFromSeconds((Date.now() - date.getTime()) / 1000);
+    if (timed.hours > 24)
+      settime(
+        date.getDate() +
+          " " +
+          getMonth(date.getMonth() + 1) +
+          ", " +
+          date.getFullYear()
+      );
+    else if (timed.hours > 0) settime(timed.hours + "h ago");
+    else if (timed.minutes > 0) settime(timed.minutes + "min ago");
+    else settime("few seconds ago");
+  }, []);
   return (
     <div
-      className={`d-flex align-items-center justify-content-between mb-4 pb-2 px-0 hidescrollbar`}
+      className={`d-flex align-items-center justify-content-between mb-4 pb-2 ${
+        showTime ? "pt-2 " : " "
+      }px-0 hidescrollbar pt-1 position-relative`}
     >
-      <User
-        id={id}
-        name={owner.firstName + " " + owner.lastName}
-        username={owner.username}
-        picture={owner.profilePic}
-        isOwner={owner.username === currentUsername}
-        followedByViewer={followedByViewer}
-      />
-      <LargeContainer
-        type="h"
-        className={`justify-content-around py-1`}
+      {showTime ? (
+        <div
+          style={{
+            color: colors.white,
+            fontSize: 13,
+            textAlign: "center",
+            position: "absolute",
+            top: 0,
+            // left: "50%",
+            // transform: "translateX(-50%)",
+            right: 0,
+            borderRadius: 15,
+            borderTopRightRadius: 0,
+            borderTopLeftRadius: 0,
+          }}
+          className="px-3 py-1"
+        >
+          {time}
+        </div>
+      ) : null}
+      <div
         style={{
-          position: "relative",
-          marginRight: 16
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <Round
-          parentStyle={{
-            marginRight: 16,
-          }}
-          loading={loadings?.includes("react")}
-          color={colors.gray}
-          disabled={!isReactable}
-          pic={{
-            height: 22,
-            width: 22,
-            isModeSensitive: false,
-            url: {
-              activePic: "react_active",
-              inactivePic: "react_inactive",
-            },
-          }}
-          activeSwitchable={false}
-          tooltip={{
-            value: {
-              tooltip_default: "Reaction",
-            },
-          }}
-          isActive={ownReaction !== undefined && isReactable}
-          total={reactsTotal}
+        <User
+          showLowerBar={owner?.username !== currentUsername}
+          name={owner?.firstName + " " + owner?.lastName}
+          username={owner?.username}
+          picture={owner?.profilePic}
+          isOwner={owner?.username === currentUsername}
+          followedByViewer={owner?.followed}
+          isFavorite={owner?.isFavorite}
+          ownerID={owner?.id}
         />
-        <Round
-          parentStyle={{
+      </div>
+      {showRightSide ? (
+        <LargeContainer
+          type="h"
+          className={`justify-content-around align-items-center py-1`}
+          style={{
+            position: "relative",
             marginRight: 16,
+            gap: 10,
           }}
-          loading={loadings?.includes("comment")}
-          color={colors.gray}
-          disabled={!isCommentable}
-          pic={{
-            height: 22,
-            width: 22,
-            isModeSensitive: false,
-            url: {
-              activePic: "comment_active",
-              inactivePic: "comment_inactive",
+        >
+          {[
+            {
+              condition: isReactable,
+              img: {
+                path: own
+                  ? `/images/post/reaction/${own}.svg`
+                  : `/images/post/topbar/react_${
+                      reacting ? "active" : "inactive"
+                    }.svg`,
+                width: 22,
+                height: 22,
+                imgStyle: {
+                  marginRight: 0,
+                },
+              },
+              active: reacting,
+              tooltip: {
+                value: "Reaction",
+                bottom: "4px",
+              },
+              style: {
+                border: own
+                  ? "1px solid transparent"
+                  : `1px solid ${reacting ? "transparent" : colors.gray}`,
+                background: own
+                  ? reactionsBg.find((a) => a.name.toLowerCase() === own)?.bg
+                  : undefined,
+              },
+              onClick: async () =>
+                own
+                  ? await react({ postID: id, emoji: own })
+                  : setShowReactions({ id, value: true }),
+              onLongPress: () => setShowReactions({ id, value: true }),
+              noHook: own !== undefined,
             },
-          }}
-          activeSwitchable={false}
-          tooltip={{
-            value: {
-              tooltip_default: "Comment",
+            {
+              condition: true,
+              img: {
+                path: `/images/post/topbar/comment_${
+                  commentsVisible ? "active" : "inactive"
+                }.svg`,
+                width: 22,
+                height: 22,
+                imgStyle: {
+                  marginRight: 0,
+                },
+              },
+              active: commentsVisible,
+              tooltip: {
+                value: "Comments",
+                bottom: "4px",
+              },
+              onClick: async () =>
+                commentsVisible ? hideComments(false) : showComments(true),
             },
-          }}
-          isActive={hasCommented && isCommentable}
-          total={commentsTotal}
-        />
-        <Round
-          loading={loadings?.includes("share")}
-          color={colors.gray}
-          disabled={!isShareable}
-          pic={{
-            height: 22,
-            width: 22,
-            isModeSensitive: false,
-            url: {
-              activePic: "share_active",
-              inactivePic: "share_inactive",
+            {
+              condition: isShareable,
+              img: {
+                path: `/images/post/topbar/share_${
+                  actives.includes("share") ? "active" : "inactive"
+                }.svg`,
+                width: 22,
+                height: 22,
+                imgStyle: {
+                  marginRight: 0,
+                },
+              },
+              active: actives.includes("share"),
+              tooltip: {
+                value: "Share",
+                bottom: "4px",
+              },
+              onClick: () => {
+                if (actives.includes("share"))
+                  setactives(actives.filter((a) => a !== "share"));
+                else {
+                  setactives([...actives, "share"]);
+                }
+              },
             },
-          }}
-          activeSwitchable={false}
-          tooltip={{
-            value: {
-              tooltip_default: "Share",
-            },
-          }}
-          isActive={hasShared && isCommentable}
-        />{" "}
-        {/** share */}
-      </LargeContainer>
-      {/* <Container
-        id={id}
-        hasCommented={hasCommented}
-        hasShared={hasShared}
-        reactsTotal={reactsTotal}
-        commentsTotal={commentsTotal}
-        isSecondary={true}
-        isCommentable={isCommentable}
-        isReactable={isReactable}
-        isShareable={isShareable}
-        isOwner={owner.username === currentUsername}
-      /> */}
+          ].map((a, i) =>
+            a.condition ? (
+              <Snippet
+                key={i}
+                cb={a.onClick}
+                longPressCb={a.onLongPress}
+                tooltip={{
+                  ...a.tooltip,
+                  tooltip_style: {
+                    color: colors.white,
+                  },
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 16,
+                  border: `1px solid ${a.active ? "transparent" : colors.gray}`,
+                  borderRadius: "50%",
+                  transition: ".3s ease all",
+                  ...a.style,
+                }}
+                bgColor={a.active ? colors.gray + "80" : undefined}
+                image={a.img}
+                useHook={a.noHook}
+              />
+            ) : null
+          )}
+        </LargeContainer>
+      ) : null}
     </div>
   );
 };

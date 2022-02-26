@@ -26,6 +26,7 @@ export default function OverlayRow({
         fn_default
     }={},
     style,
+    onHoverBg,
     className,
     ...props
 }) {
@@ -37,7 +38,7 @@ export default function OverlayRow({
                 display: "flex",
                 justifyContent: "flex-start",
                 alignItems: "center",
-                background: isHovered ? colors.coolors.charocal+"80" : "transparent",
+                background: isHovered ? (onHoverBg||colors.coolors.charocal+"80") : "transparent",
                 transition: ".3s ease all",
                 padding: 10,
                 paddingLeft: 25,

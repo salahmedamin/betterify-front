@@ -23,6 +23,7 @@ const FullScreen = (props,ref)=>{
     const [fullscreen, setfullscreen] = useState(false)
     useEffect(() => {
         setfullscreen((window.fullScreen) || (window.innerWidth === window.screen.width && window.innerHeight === window.screen.height))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [window.fullScreen, window.innerWidth,window.screen.width,window.innerHeight,window.screen.height])
     return (
         <div

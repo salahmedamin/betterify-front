@@ -1,0 +1,22 @@
+.draftJsEmojiPlugin__emojiSelectPopover__1J1s0{
+    position: absolute;
+    bottom: 100%;
+    z-index: 1000;
+    right: 0%;
+    background: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+}
+.draftJsEmojiPlugin__emojiSelectButton__3sPol{
+    background: transparent;
+    display: flex;
+    justify-content: flex-end;
+    border: 1px solid #373F51;
+    align-items: center;
+    transition: .3s ease all;
+}
+.draftJsEmojiPlugin__emojiSelectButtonPressed__2Tezu{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
