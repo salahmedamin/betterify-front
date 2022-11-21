@@ -1,6 +1,17 @@
+import { commentOnPost } from "./posts/comment";
+import { addLoading } from "./posts/comments/addLoading";
+import { deleteLoading } from "./posts/comments/deleteLoading";
+import { hideReplies } from "./posts/comments/hideReplies";
+import { incrementCommentRepliesIndex } from "./posts/comments/incrementRepliesIndex";
+import { editPost } from "./posts/editPost";
+import { followOwner } from "./posts/followOwner";
+import { reactOnPost } from "./posts/react";
+import { sharePost } from "./posts/share";
+import { showReactList } from "./posts/showReactList";
+
 export const posts = (
   state = {
-    list: [] /**data */,
+    list: [],
     comments: [],
     replies: [],
     showReactions: [],
@@ -15,41 +26,10 @@ export const posts = (
       };
 
     case "POSTS_FOLLOW_OWNER":
-      return {
-        ...state,
-        list: [
-          ...state.list.map((a) => ({
-            owner:
-              a.id === action.id
-                ? {
-                    ...a.owner,
-                    followed: action.follow,
-                  }
-                : a.owner,
-            ...a,
-          })),
-        ],
-      };
+      return followOwner(state, action);
 
     case "POSTS_EDIT":
-      return {
-        ...state,
-        list: [
-          ...state.list.map((a) => ({
-            edits:
-              a.id === action.id
-                ? [
-                    {
-                      text: action.text,
-                    },
-                    ...a.edits,
-                  ]
-                : a.edits,
-            hasEdits: true,
-            ...a,
-          })),
-        ],
-      };
+      return editPost(state, action);
 
     case "POSTS_OVERLAY":
       return {
@@ -91,50 +71,14 @@ export const posts = (
         ],
       };
 
-    case "POSTS_REACT":
-      return {
-        ...state,
-        list: [
-          ...state.list.map((a) => ({
-            react: {
-              ownReaction: action.emoji,
-              ...a.react,
-            },
-            ...a,
-          })),
-        ],
-      };
+    // case "POSTS_REACT":
+    //   return reactOnPost(state, action);
 
     case "POSTS_SHARE":
-      return {
-        ...state,
-        list: [
-          ...state.list.map((a) => ({
-            hasShared: a.id === action.id,
-            ...a,
-          })),
-        ],
-      };
+      return sharePost(state, action);
 
     case "POSTS_COMMENT": //when user comments on post
-      return {
-        ...state,
-        list: [
-          ...state.list.map((a) => ({
-            commentsCount:
-              a.id === action.id
-                ? action.type === "add"
-                  ? a.commentsCount + 1
-                  : a.commentsCount - 1
-                : a.commentsCount,
-            hasCommented:
-              a.id === action.id && action.type === "add"
-                ? true
-                : a.hasCommented,
-            ...a,
-          })),
-        ],
-      };
+      return commentOnPost(state, action);
 
     case "POST_EMPTY_COMMENTS":
       return {
@@ -143,35 +87,10 @@ export const posts = (
       };
 
     case "COMMENT_ADD_LOADING":
-      return {
-        ...state,
-        comments: state.comments.map((a) =>
-          action.id === a.id
-            ? {
-                ...a,
-                loadings: [
-                  ...(Array.isArray(a.loadings) ? a.loadings : []),
-                  action.data,
-                ],
-              }
-            : a
-        ),
-      };
+      return addLoading(state, action);
 
     case "COMMENT_DELETE_LOADING":
-      return {
-        ...state,
-        comments: state.comments.map((a) =>
-          action.id === a.id
-            ? {
-                ...a,
-                loadings: Array.isArray(a.loadings)
-                  ? a.loadings.filter((a) => a !== action.data)
-                  : [],
-              }
-            : a
-        ),
-      };
+      return deleteLoading(state, action);
 
     case "POST_GET_COMMENTS":
       return {
@@ -180,18 +99,7 @@ export const posts = (
       };
 
     case "COMMENTS_REPLIES_INDEX_INC":
-      return {
-        ...state,
-        comments: state.comments.map((a) =>
-          a.id === action.id
-            ? {
-                ...a,
-                showReplies: true,
-                repliesIndex: a.repliesIndex + 1,
-              }
-            : a
-        ),
-      };
+      return incrementCommentRepliesIndex(state, action);
 
     case "COMMENTS_EMPTY_REPLIES":
       return {
@@ -202,18 +110,7 @@ export const posts = (
       };
 
     case "COMMENTS_HIDE_REPLIES":
-      return {
-        ...state,
-        comments: state.comments.map((a) =>
-          a.id === action.id
-            ? {
-                ...a,
-                showReplies: false,
-                repliesIndex: -1,
-              }
-            : a
-        ),
-      };
+      return hideReplies(state, action);
 
     case "COMMENTS_SET_REPLIES":
       return {
@@ -222,88 +119,10 @@ export const posts = (
       };
 
     case "POSTS_SET_SHOW_REACTIONS":
-      return {
-        ...state,
-        showReactions: action.value
-          ? [...state.showReactions, action.id]
-          : state.showReactions.filter((a) => a !== action.id),
-      };
+      return showReactList(state, action);
 
     case "POSTS_SET_REACTION":
-      const meantPost = state.list.find((a) => a.id === action.id);
-      const ownReaction = meantPost?.react?.ownReaction?.toLowerCase();
-      const reactionFromAction = action.react?.toLowerCase();
-      const hasReacts = meantPost?.react?.types?.length > 0;
-      const hasReactorAlready = meantPost?.react?.types?.find(
-        (a) => a.emoji === action.react.toLowerCase()
-      ); //checking if reaction from action object has some reactors already
-      return {
-        ...state,
-        list: state.list.map((a) =>
-          a.id === action.id
-            ? {
-                ...a,
-                react: {
-                  ...a.react,
-
-                  ownReaction:
-                    reactionFromAction === ownReaction
-                      ? undefined
-                      : action.react,
-
-                  types: !hasReacts
-                    ? [
-                        //if no reactions at all, add it, simply 🤷‍♀️
-                        {
-                          emoji: action.react,
-                          total: 1,
-                        },
-                      ]
-                    : !hasReactorAlready
-                    ? //if reaction doesn't have reactors already, add it,
-                      //then, if user's reaction already exists, remove it
-                      [
-                        ...a.react?.types?.map((m) =>
-                          m.emoji === ownReaction
-                            ? {
-                                ...m,
-                                total: m.total - 1,
-                              }
-                            : m
-                        ),
-                        {
-                          emoji: action.react,
-                          total: 1,
-                        },
-                      ].filter((a) => a.total > 0)
-                    : //must check,
-                      //if his reaction, is the only one when he changed it to another
-                      //then remove it
-                      a.react?.types
-                        ?.map((x) =>
-                          x.emoji === reactionFromAction
-                            ? {
-                                ...x,
-                                total:
-                                  ownReaction === x.emoji
-                                    ? x.total - 1
-                                    : x.total + 1,
-                              }
-                            : x.emoji === ownReaction &&
-                              ownReaction !== reactionFromAction
-                            ? {
-                                ...x,
-                                total: x.total - 1,
-                              }
-                            : x
-                        )
-                        .filter((e) => e?.total > 0),
-                },
-              }
-            : a
-        ),
-      };
-
+      return reactOnPost(state, action);
     default:
       return state;
   }

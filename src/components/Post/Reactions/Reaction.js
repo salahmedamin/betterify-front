@@ -2,24 +2,25 @@
 
 import React from "react";
 import { react } from "../../../async/posts/react";
-import { colors } from "../../../colors";
+import { useColors } from "../../../colors";
 import { setShowReactions } from "../../../dispatches/posts/setShowReactions";
 import { useHover } from "../../../hooks/useHover";
 
 function Reaction({ isSelected, name, id }) {
+  const colors = useColors();
   const [ref, hovered] = useHover();
   return (
     <div
       ref={ref}
-      onClick={async() => {
+      onClick={async () => {
         setShowReactions({
           id,
           value: false,
         });
         await react({
-            emoji: name.toLowerCase(),
-            postID: id
-        })
+          emoji: name.toLowerCase(),
+          postID: id,
+        });
       }}
       style={{
         boxSizing: "content-box",
@@ -45,7 +46,7 @@ function Reaction({ isSelected, name, id }) {
         height={45}
         style={{
           objectFit: "contain",
-          marginBottom: 10
+          marginBottom: 10,
         }}
         alt="Reaction"
       />

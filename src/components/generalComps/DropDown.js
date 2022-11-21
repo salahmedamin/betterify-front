@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { colors } from "../../colors";
+import { useColors } from "../../colors";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import Snippet from "./Snippet";
 
@@ -16,23 +16,29 @@ export const DropDown = ({
   selectedText,
   groups = [],
 }) => {
-    
-  const [selected, setselected] = useState(groups.length === 0 ? 0 : {
-    groupID:"date",
-    index: 0
-  });
+  const [selected, setselected] = useState(
+    groups.length === 0
+      ? 0
+      : {
+          groupID: "date",
+          index: 0,
+        }
+  );
   const [expand, setexpand] = useState(false);
   const ref = useRef(null);
   useOnClickOutside(ref, () => (expand ? setexpand(false) : undefined));
-  const isSelected = (i,groupID) =>{
-    if(groups.length === 0) return (typeof _selected === "boolean" ? _selected : selected) === i
+  const isSelected = (i, groupID) => {
+    if (groups.length === 0)
+      return (typeof _selected === "boolean" ? _selected : selected) === i;
     else {
-        // console.log(selected, groupID, i)
-        // console.log(i === selected.index,selected.groupID)
-        return typeof _selected === "object" ? _selected.groupID?.toLowerCase() === groupID && i === _selected.index
-        : selected.groupID?.toLowerCase() === groupID && i === selected.index
+      // console.log(selected, groupID, i)
+      // console.log(i === selected.index,selected.groupID)
+      return typeof _selected === "object"
+        ? _selected.groupID?.toLowerCase() === groupID && i === _selected.index
+        : selected.groupID?.toLowerCase() === groupID && i === selected.index;
     }
-  }
+  };
+  const colors = useColors();
   return (
     <div
       style={{
@@ -49,16 +55,14 @@ export const DropDown = ({
           overflow: "hidden",
           //   background: colors.blue,
           padding: 10,
-          boxSizing:"border-box",
-          color: colors.white,
+          boxSizing: "border-box",
+          color: "white",
           borderRadius: 5,
           borderBottomRightRadius: expand ? 0 : 5,
-          borderBottomLeftRadius: expand ? 0 : 5
+          borderBottomLeftRadius: expand ? 0 : 5,
         }}
       >
-          {
-              selectedText
-          }
+        {selectedText}
       </div>
       <div
         ref={ref}
@@ -67,7 +71,7 @@ export const DropDown = ({
           maxHeight: expand ? 150 : 0,
           visibility: expand ? "visible" : "hidden",
           opacity: expand ? 1 : 0,
-          overflow: expand ? "scroll" : "hidden",
+          overflowY: expand ? "scroll" : "hidden",
           overflowX: "hidden",
           transition: ".3s ease all",
           display: "flex",
@@ -85,16 +89,23 @@ export const DropDown = ({
         {groups.length > 0
           ? groups.map((a, i) => {
               return (
-                <div style={{padding: 10,boxSizing:"border-box"}} key={i}>
+                <div
+                  style={{
+                    padding: 10,
+                    boxSizing: "border-box",
+                    width: "100%",
+                  }}
+                  key={i}
+                >
                   <Snippet
-                    bgColor={colors.gray+"80"}
-                    color={colors.white}
+                    bgColor={colors.gray + "80"}
+                    color={"white"}
                     text={a.name}
                     style={{
-                        marginTop: 5,
-                        marginBottom: 5,
-                        paddingTop: 5,
-                        paddingBottom: 5
+                      marginTop: 5,
+                      marginBottom: 5,
+                      paddingTop: 5,
+                      paddingBottom: 5,
                     }}
                   />
                   <div>
@@ -104,17 +115,16 @@ export const DropDown = ({
                         <div
                           key={i}
                           style={{
-                            background: isSelected(i, a.id )
-                              ? colors.blue+"80"
-                              : i % 2 === 0
-                              ? colors.black
+                            background: isSelected(i, a.id)
+                              ? colors.blue + "80"
                               : colors.gray + "90",
-                            color: colors.white,
+                            color: "white",
                             width: "100%",
                             padding: 8,
-                            //   color: colors.white,
                             display: e.image ? "flex" : undefined,
-                            justifyContent: e.image ? "space-around" : undefined,
+                            justifyContent: e.image
+                              ? "space-around"
+                              : undefined,
                             ...holderStyle,
                           }}
                           onClick={() => {
@@ -123,31 +133,42 @@ export const DropDown = ({
                             if (typeof optionOnClick === "function")
                               optionOnClick();
                             if (typeof _setselected === "function")
-                              _setselected(!groups.length ? i : {
-                                  groupID: a.id?.toLowerCase(),
-                                  index: i
-                              });
-                            else setselected(!groups.length ? i : {
-                                groupID: a.id?.toLowerCase(),
-                                index: i
-                            });
+                              _setselected(
+                                !groups.length
+                                  ? i
+                                  : {
+                                      groupID: a.id?.toLowerCase(),
+                                      index: i,
+                                    }
+                              );
+                            else
+                              setselected(
+                                !groups.length
+                                  ? i
+                                  : {
+                                      groupID: a.id?.toLowerCase(),
+                                      index: i,
+                                    }
+                              );
                           }}
                         >
-                          {!e.image ? e.name : 
+                          {!e.image ? (
+                            e.name
+                          ) : (
                             <>
-                                <div
-                                    style={{
-                                        backgroundSize: "contain",
-                                        backgroundRepeat:"no-repeat",
-                                        backgroundPosition:"center",
-                                        backgroundImage: `url(${e.image})`,
-                                        height: initHeight/2,
-                                        width: initHeight/2
-                                    }}
-                                />
-                                <div>{e.name}</div>
+                              <div
+                                style={{
+                                  backgroundSize: "contain",
+                                  backgroundRepeat: "no-repeat",
+                                  backgroundPosition: "center",
+                                  backgroundImage: `url(${e.image})`,
+                                  height: initHeight / 2,
+                                  width: initHeight / 2,
+                                }}
+                              />
+                              <div>{e.name}</div>
                             </>
-                          }
+                          )}
                         </div>
                       ))}
                   </div>

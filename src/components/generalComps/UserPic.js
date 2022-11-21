@@ -1,4 +1,4 @@
-import { colors } from "../../colors";
+import { useColors } from "../../colors";
 import { toggleFavorite } from "../../dispatches/users/toggleFavorite";
 import { toggleFollow } from "../../dispatches/users/toggleFollow";
 import { useHover } from "../../hooks/useHover";
@@ -18,18 +18,23 @@ export const UserPic = ({
   isOwner = false,
   isComment = false,
   style,
-  hover=false,
+  hover = false,
   id,
   ...props
 }) => {
-  const [ref, isHovered] = useHover()
+  const [ref, isHovered] = useHover();
+  const colors = useColors();
   return (
     <>
       <div
         ref={ref}
         className={
           (className ? className + " " : "") +
-          `d-flex ${isComment ? "":" flex-column align-items-center justify-content-center"} `
+          `d-flex ${
+            isComment
+              ? ""
+              : " flex-column align-items-center justify-content-center"
+          } `
         }
         style={{
           cursor: "pointer",
@@ -37,9 +42,13 @@ export const UserPic = ({
           maxWidth: 200,
           transform: "translateX(-1px)",
           zIndex: 100,
-          background: hover ? (isHovered ? colors.gray+"40" : undefined) : undefined,
+          background: hover
+            ? isHovered
+              ? colors.gray + "40"
+              : undefined
+            : undefined,
           padding: hover ? 10 : undefined,
-          ...style
+          ...style,
         }}
         onClick={onClick}
         {...props}
@@ -113,7 +122,7 @@ export const UserPic = ({
                 inactive: "Follow",
                 pending: "Cancel Request",
               },
-              onClick: ()=>toggleFollow({id})
+              onClick: () => toggleFollow({ id }),
             },
             {
               pic: "favorite",
@@ -123,7 +132,7 @@ export const UserPic = ({
                 active: "Unfavorise",
                 inactive: "Favorise",
               },
-              onClick: ()=>toggleFavorite({id})
+              onClick: () => toggleFavorite({ id }),
             },
             {
               pic: "report",

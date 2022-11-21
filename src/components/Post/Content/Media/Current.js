@@ -1,11 +1,11 @@
-import { Video } from "./Current/Types/Video";
+import { useEffect } from "react";
+import { getTimeFromSeconds } from "../../../functions/getTimeFromSeconds";
+import Divider from "../../../generalComps/Divider";
 import { Arrow } from "./Current/Arrow";
 import { Audio } from "./Current/Types/Audio";
 import { File } from "./Current/Types/File";
-import { getTimeFromSeconds } from "../../../functions/getTimeFromSeconds";
-import { useEffect } from "react";
-import Divider from "../../../generalComps/Divider";
 import { Image } from "./Current/Types/Image";
+import { Video } from "./Current/Types/Video";
 
 export const Current = ({
   current,
@@ -48,8 +48,7 @@ export const Current = ({
         <File
           index={currentIndex}
           total={total}
-          size={current.size}
-          name={current.name}
+          {...current}
         />
       ) : current?.type === "video" ? (
         <Video

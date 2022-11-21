@@ -1,41 +1,37 @@
-import "draft-js/dist/Draft.css";
-import "draft-js-mention-plugin/lib/plugin.css";
-import "draft-js-hashtag-plugin/lib/plugin.css";
-import "draft-js-emoji-plugin/lib/plugin.css";
-import "./emojiStyles.css";
-
-import React, { useRef, useState } from "react";
-
-import Editor from "draft-js-plugins-editor";
 import {
-  EditorState,
+  ContentState,
   convertToRaw /*Modifier, SelectionState*/,
+  EditorState,
 } from "draft-js";
-import createMentionPlugin from "draft-js-mention-plugin";
-import createHashtagPlugin from "draft-js-hashtag-plugin";
 import createEmojiPlugin from "draft-js-emoji-plugin";
-
-import { UserPic } from "../../UserPic";
-import { colors } from "../../../../colors";
-import { extractDataFromState } from "./extractDataFromState";
-import { Loading } from "../../../../Loading";
+import "draft-js-emoji-plugin/lib/plugin.css";
+import createHashtagPlugin from "draft-js-hashtag-plugin";
+import "draft-js-hashtag-plugin/lib/plugin.css";
+import createMentionPlugin from "draft-js-mention-plugin";
+import "draft-js-mention-plugin/lib/plugin.css";
+import Editor from "draft-js-plugins-editor";
+import "draft-js/dist/Draft.css";
+import React, { useEffect, useRef, useState } from "react";
 import { getMentions } from "../../../../async/user/getMentions";
+import { useColors } from "../../../../colors";
+import { Loading } from "../../../../Loading";
+import { UserPic } from "../../UserPic";
+import "./emojiStyles.css";
+import { extractDataFromState } from "./extractDataFromState";
 
-const style = {
+const style = (colors) => ({
   width: "100%",
   display: "flex",
   gap: 5,
   background: colors.black,
   boxShadow: "0px -3px 5px 1px " + colors.black,
   border: "1px solid " + colors.gray,
-  borderTop: "1px solid " + colors.gray,
   overflowX: "scroll",
   zIndex: 200,
   padding: 5,
   paddingBottom: 0,
   transition: ".3s ease all",
-};
-
+});
 const emojiPlugin = createEmojiPlugin({
   selectButtonContent: (
     <div
@@ -51,68 +47,66 @@ const emojiPlugin = createEmojiPlugin({
   ),
 });
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
-
 const _editorState = EditorState.createEmpty();
-
 const hashtagPlugin = createHashtagPlugin();
-const mentionPlugin = createMentionPlugin({
-  mentionTrigger: "@",
-  positionSuggestions: () => {
-    return {
-      position: "absolute",
-      bottom: "100%",
-      left: 0,
-    };
-  },
-  mentionComponent: ({ mention, entityKey, decoratedText, ...props }) => (
-    <span
-      {...props}
-      // onClick={(e) => console.log(e)}
-      style={{ background: colors.gray, color: colors.white }}
-    >
-      {mention.username}
-    </span>
-  ),
-});
+const mentionPlugin = (colors) =>
+  createMentionPlugin({
+    mentionTrigger: "@",
+    positionSuggestions: () => {
+      return {
+        position: "absolute",
+        bottom: "100%",
+        left: 0,
+      };
+    },
+    mentionComponent: ({ mention, entityKey, decoratedText, ...props }) => (
+      <span
+        {...props}
+        // onClick={(e) => console.log(e)}
+        style={{ background: colors.gray, color: colors.white }}
+      >
+        {mention.username}
+      </span>
+    ),
+  });
+const extractMentSugg = (colors) => {
+  const { MentionSuggestions } = mentionPlugin(colors);
+  return MentionSuggestions;
+};
+const plugins = (colors) => [hashtagPlugin, emojiPlugin, mentionPlugin(colors)];
 
-const { MentionSuggestions } = mentionPlugin;
-const plugins = [mentionPlugin, hashtagPlugin, emojiPlugin];
-
-
-
-
-
-
-
-
-
-export const WritingEditor = (
-    { placeholder,
-      useSuggestion=true,
-      setfocused=()=>undefined,
-      setstate
-    }
+export const WritingEditor = React.forwardRef(
+  (
+    {
+      placeholder,
+      useSuggestion = true,
+      setfocused = () => undefined,
+      setstate,
+      emptify,
+    },
+    _ref
   ) => {
-    const ref = useRef()
+    const colors = useColors();
+    const MentionSuggestions = extractMentSugg(colors);
+    const ref = useRef();
     const [editorState, seteditorState] = useState(_editorState);
     const [suggestions, setsuggestions] = useState([]);
     const [addedMentions, setaddedMentions] = useState([]);
     const [isLoadingMentions, setisLoadingMentions] = useState(false);
 
     const onChange = (editorState) => {
-      const _state = convertToRaw(editorState.getCurrentContent())
-      setaddedMentions(extractDataFromState({state: _state, getMentionsOnly: true}))
-      seteditorState(editorState)
-
-      setstate(_state)
+      const _state = convertToRaw(editorState.getCurrentContent());
+      setaddedMentions(
+        extractDataFromState({ state: _state, getMentionsOnly: true })
+      );
+      seteditorState(editorState);
+      setstate(_state);
     };
-
     const onSearchChange = async ({ value }) => {
       if (value.length === 0) {
         setsuggestions([]);
         return;
       }
-
       setisLoadingMentions(true);
       setsuggestions([{}]);
 
@@ -120,7 +114,7 @@ export const WritingEditor = (
         keyword: value,
         postID: 1,
         type: "comment",
-        notIn: addedMentions?.map((a) => a.username).filter(a=>a),
+        notIn: addedMentions?.map((a) => a.username).filter((a) => a),
       });
       setsuggestions(result?.length > 0 ? result : [{}]);
       setisLoadingMentions(false);
@@ -128,6 +122,15 @@ export const WritingEditor = (
     const onAddMention = () => {
       setsuggestions([]);
     };
+
+    useEffect(() => {
+      seteditorState(
+        EditorState.createWithContent(ContentState.createFromText(""))
+      );
+      setaddedMentions([]);
+      setisLoadingMentions(false);
+      setsuggestions([]);
+    }, [emptify]);
 
     return (
       <>
@@ -189,20 +192,17 @@ export const WritingEditor = (
                 />
               );
             }}
-            style={style}
+            style={style(colors)}
           />
         ) : null}
         <Editor
           editorState={editorState}
           onChange={onChange}
-          plugins={plugins}
-          ref={ref}
-          onFocus={()=>setfocused(true)}
-          onBlur={()=>setfocused(false)}
+          plugins={plugins(mentionPlugin(colors))}
+          ref={_ref || ref}
+          onFocus={() => setfocused(true)}
+          onBlur={() => setfocused(false)}
           placeholder={placeholder}
-          style={{
-            color: "red",
-          }}
         />
         <EmojiSuggestions />
         <div
@@ -215,3 +215,4 @@ export const WritingEditor = (
       </>
     );
   }
+);

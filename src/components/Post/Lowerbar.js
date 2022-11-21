@@ -1,5 +1,5 @@
 import React from "react";
-import { colors } from "../../colors";
+import { useColors } from "../../colors";
 import Snippet from "../generalComps/Snippet";
 import { reactionsBg } from "./Reactions/reactions_list";
 
@@ -26,6 +26,7 @@ export const Lowerbar = ({ reacts, commentsTotal, viewsTotal }) => {
           colB: "emoji",
         });
 
+  const colors = useColors();
   return (
     <div
       className="py-2"

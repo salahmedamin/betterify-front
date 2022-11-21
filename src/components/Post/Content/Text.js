@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { colors } from "../../../colors";
-import {HorizontalScroll} from "../../generalComps/HorizontalScroll";
+import { useColors } from "../../../colors";
+import { HorizontalScroll } from "../../generalComps/HorizontalScroll";
 import Snippet from "../../generalComps/Snippet";
-import { TextWithTags } from "../../generalComps/Text";
+import { useTextWithTags } from "../../generalComps/Text";
 
 export const Text = ({
   text,
@@ -13,13 +13,13 @@ export const Text = ({
   hasMedia,
   postWidth,
   urls,
-  isPost=true,
-  textStyle={}
+  isPost = true,
+  textStyle = {},
 }) => {
-  const textHolder = useRef()
+  const TextWithTags = useTextWithTags();
+  const textHolder = useRef();
   const [tagDone, settagDone] = useState(false);
   const [conv, setconv] = useState(TextWithTags(text));
-  TextWithTags(text)
   const [useReadMore, setuseReadMore] = useState(false);
   const [textHeight, settextHeight] = useState(
     textHolder?.current?.getBoundingClientRect().height
@@ -27,17 +27,18 @@ export const Text = ({
   const [showmore, setshowmore] = useState(false);
 
   useEffect(() => {
-    if(!tagDone){
+    if (!tagDone) {
       setconv(TextWithTags(text, tagged, undefined, urls));
-      settagDone(true)
+      settagDone(true);
     }
     const { height } = textHolder?.current?.getBoundingClientRect();
     if (height > 343) {
       setuseReadMore(true);
       settextHeight(postWidth < 650 ? height + 100 : height);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postWidth, tagDone, text, tagged]);
+  const colors = useColors();
 
   return (
     <div
@@ -46,7 +47,8 @@ export const Text = ({
       }}
       className={`${isPost ? "px-3" : ""}`}
     >
-      {(typeof activity === "object" && Object.keys(activity).length > 0) || place ? (
+      {(typeof activity === "object" && Object.keys(activity).length > 0) ||
+      place ? (
         <HorizontalScroll
           maxWidth={"100%"}
           overflowXScroll={true}
@@ -61,7 +63,7 @@ export const Text = ({
         >
           {place ? (
             <Snippet
-            key={1}
+              key={1}
               style={{
                 marginRight: activity ? 10 : 0,
                 fontSize: 11,
@@ -77,22 +79,11 @@ export const Text = ({
                 width: 16,
                 height: 18,
               }}
-              tooltip={{
-                right: "5px",
-                tooltip_style:{
-                  border: "1px solid "+colors.gray,
-                  color: colors.white,
-                  backgroundColor: colors.body,
-                  zIndex: 30,
-                  boxShadow: "0px 0px 30px 5px rgb(0,0,0,.8)"
-                },
-                value: "Place",
-              }}
             />
           ) : null}
-          {(typeof activity === "object" && Object.keys(activity).length > 0) ? (
+          {typeof activity === "object" && Object.keys(activity).length > 0 ? (
             <Snippet
-            key={2}
+              key={2}
               style={{
                 fontSize: 11,
                 border: `1px solid ${colors.gray}`,
@@ -109,25 +100,14 @@ export const Text = ({
                 width: 20,
                 height: 20,
               }}
-              tooltip={{
-                left: "5px",
-                tooltip_style:{
-                  border: "1px solid "+colors.gray,
-                  color: colors.white,
-                  backgroundColor: colors.body,
-                  zIndex: 30,
-                  boxShadow: "0px 0px 30px 5px rgb(0,0,0,.8)"
-                },
-                value: "Activity",
-              }}
               custom={
                 activity.with ? (
                   <span style={{ marginLeft: 5 }}>
                     with
                     <span
                       style={{
-                        backgroundColor: colors.coolors.charocal,
-                        color: colors.white,
+                        backgroundColor: colors.gray,
+                        color: "#ffffff",
                         padding: 4,
                         marginLeft: 5,
                         fontSize: 10,
@@ -153,39 +133,33 @@ export const Text = ({
           overflow: "hidden",
           transition: ".4s ease all",
           fontSize: 14,
-          ...textStyle
+          ...textStyle,
         }}
       >
-        {
-          conv.map((e,x)=>
-          <div key={x}>
-            {e.map((a,i)=>
-              a
-            )}
-            </div>
-          )
-        }
+        {conv.map((e, x) => (
+          <div key={x}>{e.map((a, i) => a)}</div>
+        ))}
       </div>
-      {(hasEdits) || useReadMore ? (
+      {hasEdits || useReadMore ? (
         <div
           style={{
             display: "flex",
             // borderTop: "1px solid "+colors.gray,
             paddingTop: 4,
-            paddingBottom: 10
+            paddingBottom: 10,
           }}
         >
           {hasEdits ? (
             <Snippet
-            key={3}
+              key={3}
               style={{
                 fontSize: 12,
                 marginRight: 10,
               }}
               cb={() => undefined}
-              color={colors.white}
+              color={"#ffffff"}
               bgColor={colors.gray}
-              text="Show edits"
+              text="Edited"
               image={{
                 path: "/images/post/content/edit.svg",
                 width: 12,
@@ -195,7 +169,7 @@ export const Text = ({
           ) : null}
           {useReadMore ? (
             <Snippet
-            key={4}
+              key={4}
               cb={() => setshowmore(!showmore)}
               bgColor={colors.gray + "90"}
               color={colors.white}

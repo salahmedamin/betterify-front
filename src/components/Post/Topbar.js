@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { colors } from "../../colors";
+import { useColors } from "../../colors";
+import { getMonth } from "../functions/getMonth";
+import { getTimeFromSeconds } from "../functions/getTimeFromSeconds";
 import LargeContainer from "../generalComps/LargeContainer";
 import Snippet from "../generalComps/Snippet";
+import { toMap } from "./Topbar/toMap";
 import { User } from "./Topbar/User";
-import { getTimeFromSeconds } from "../functions/getTimeFromSeconds";
-import { getMonth } from "../functions/getMonth";
-import { setShowReactions } from "../../dispatches/posts/setShowReactions";
-import { reactionsBg } from "./Reactions/reactions_list";
-import { react } from "../../async/posts/react";
 
 export const Topbar = ({
   id,
@@ -22,6 +20,7 @@ export const Topbar = ({
 }) => {
   const [actives, setactives] = useState([]);
   const [time, settime] = useState();
+  const colors = useColors();
   useEffect(() => {
     const date = new Date(created_at);
     const timed = getTimeFromSeconds((Date.now() - date.getTime()) / 1000);
@@ -36,7 +35,7 @@ export const Topbar = ({
     else if (timed.hours > 0) settime(timed.hours + "h ago");
     else if (timed.minutes > 0) settime(timed.minutes + "min ago");
     else settime("few seconds ago");
-  }, []);
+  }, [created_at]);
   return (
     <div
       className={`d-flex align-items-center justify-content-between mb-4 pb-2 ${
@@ -90,87 +89,18 @@ export const Topbar = ({
             gap: 10,
           }}
         >
-          {[
-            {
-              condition: isReactable,
-              img: {
-                path: own
-                  ? `/images/post/reaction/${own}.svg`
-                  : `/images/post/topbar/react_${
-                      reacting ? "active" : "inactive"
-                    }.svg`,
-                width: 22,
-                height: 22,
-                imgStyle: {
-                  marginRight: 0,
-                },
-              },
-              active: reacting,
-              tooltip: {
-                value: "Reaction",
-                bottom: "4px",
-              },
-              style: {
-                border: own
-                  ? "1px solid transparent"
-                  : `1px solid ${reacting ? "transparent" : colors.gray}`,
-                background: own
-                  ? reactionsBg.find((a) => a.name.toLowerCase() === own)?.bg
-                  : undefined,
-              },
-              onClick: async () =>
-                own
-                  ? await react({ postID: id, emoji: own })
-                  : setShowReactions({ id, value: true }),
-              onLongPress: () => setShowReactions({ id, value: true }),
-              noHook: own !== undefined,
-            },
-            {
-              condition: true,
-              img: {
-                path: `/images/post/topbar/comment_${
-                  commentsVisible ? "active" : "inactive"
-                }.svg`,
-                width: 22,
-                height: 22,
-                imgStyle: {
-                  marginRight: 0,
-                },
-              },
-              active: commentsVisible,
-              tooltip: {
-                value: "Comments",
-                bottom: "4px",
-              },
-              onClick: async () =>
-                commentsVisible ? hideComments(false) : showComments(true),
-            },
-            {
-              condition: isShareable,
-              img: {
-                path: `/images/post/topbar/share_${
-                  actives.includes("share") ? "active" : "inactive"
-                }.svg`,
-                width: 22,
-                height: 22,
-                imgStyle: {
-                  marginRight: 0,
-                },
-              },
-              active: actives.includes("share"),
-              tooltip: {
-                value: "Share",
-                bottom: "4px",
-              },
-              onClick: () => {
-                if (actives.includes("share"))
-                  setactives(actives.filter((a) => a !== "share"));
-                else {
-                  setactives([...actives, "share"]);
-                }
-              },
-            },
-          ].map((a, i) =>
+          {toMap({
+            actives,
+            commentsVisible,
+            hideComments,
+            id,
+            isReactable,
+            isShareable,
+            own,
+            reacting,
+            setactives,
+            showComments,
+          }).map((a, i) =>
             a.condition ? (
               <Snippet
                 key={i}
@@ -194,7 +124,7 @@ export const Topbar = ({
                 }}
                 bgColor={a.active ? colors.gray + "80" : undefined}
                 image={a.img}
-                useHook={a.noHook}
+                useHook={a.useHook}
               />
             ) : null
           )}

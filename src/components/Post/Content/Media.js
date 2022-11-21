@@ -1,18 +1,15 @@
 import { useState } from "react";
-import { colors } from "../../../colors";
+import { useColors } from "../../../colors";
 import Snippet from "../../generalComps/Snippet";
-// import { colors } from "../../../colors";
+// import { useColors } from "../../../colors";
 import { All } from "./Media/All";
 import { Current } from "./Media/Current";
 
-export const Media = ({
-  medias,
-  postWidth,
-  setpostWidth,
-}) => {
+export const Media = ({ medias, postWidth, setpostWidth }) => {
   const [current, setcurrent] = useState(0);
-  const [showMedia, setshowMedia] = useState(false)
+  const [showMedia, setshowMedia] = useState(false);
   // const [expandOptions, setexpandOptions] = useState(false)
+  const colors = useColors();
   return (
     <div
       style={{
@@ -32,29 +29,10 @@ export const Media = ({
         <Snippet
           color={colors.white}
           cb={() => setshowMedia(!showMedia)}
-          text={<>
-            <div style={{
-              backgroundImage:'url(/images/post/content/arrow_down.svg)',
-              backgroundSize: "contain",
-              backgroundPosition: "center",
-              backgroundRepeat:"no-repeat",
-              width: 13,
-              height: 13,
-              display:"inline-block",
-              marginRight: 10,
-              transform: `rotate(${showMedia ? "180deg" : "0deg"})`,
-              transition: ".3s ease all"
-            }}/> 
-            {(showMedia ? "Hide" : "Show") + " Media"}
-          </>}
+          text={<>{(showMedia ? "Hide" : "Show") + " Media"}</>}
           style={{
-            alignSelf:"flex-end",
-            borderTop: "1px solid "+colors.gray,
-            borderLeft: "1px solid "+colors.gray,
-            borderBottom: "1px solid "+colors.gray,
-            borderRadius: 0,
             marginBottom: 10,
-            boxShadow: "0px 0px 10px 1px "+colors.gray+"40"
+            fontSize: 13,
           }}
         />
       ) : null}
